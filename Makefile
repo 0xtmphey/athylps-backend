@@ -1,5 +1,8 @@
 run:
-	go run cmd/app/main.go
+	go run cmd/athylps/main.go
 
 test:
 	go test ./...
+
+vet:
+	go vet ./...
