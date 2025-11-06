@@ -18,7 +18,11 @@ type ServerConfig struct {
 }
 
 type DatabaseConfig struct {
-	URL string `env:"DB_CONN_URL,required"`
+	Name     string `env:"DB_NAME,required"`
+	Port     string `env:"DB_PORT,required"`
+	Host     string `env:"DB_HOST,required"`
+	User     string `env:"DB_USER,required"`
+	Password string `env:"DB_PASSWORD,required"`
 }
 
 func Load() (*Config, error) {
@@ -29,4 +33,15 @@ func Load() (*Config, error) {
 	}
 
 	return cfg, nil
+}
+
+func (dbConfig *DatabaseConfig) ConnectionUrl() string {
+	return fmt.Sprintf(
+		"postgres://%s:%s@%s:%s/%s",
+		dbConfig.User,
+		dbConfig.Password,
+		dbConfig.Host,
+		dbConfig.Port,
+		dbConfig.Name,
+	)
 }
