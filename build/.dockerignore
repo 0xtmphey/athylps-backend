@@ -1,0 +1,61 @@
+# Git
+.git/
+.gitignore
+.gitattributes
+
+# Docker
+Dockerfile
+.dockerignore
+docker-compose*.yml
+
+# Documentation
+*.md
+README.md
+CLAUDE.md
+LICENSE
+docs/
+
+# CI/CD
+.github/
+
+# Build artifacts
+bin/
+dist/
+build/
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# Test files and coverage
+*_test.go
+*.test
+*.out
+coverage.*
+*.coverprofile
+profile.cov
+testdata/
+
+# Environment and config
+.env
+.env.*
+*.local
+
+# Editor/IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Go workspace
+go.work
+go.work.sum
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+*.log

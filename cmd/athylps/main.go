@@ -1,7 +1,19 @@
 package main
 
-import "fmt"
+import (
+	"net/http"
+
+	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/chi/v5/middleware"
+)
 
 func main() {
-	fmt.Println("ATHYLPS API")
+	r := chi.NewRouter()
+	r.Use(middleware.Logger)
+
+	r.Get("/health", func(w http.ResponseWriter, r *http.Request) {
+		w.Write([]byte("ok"))
+	})
+
+	http.ListenAndServe(":8080", r)
 }
