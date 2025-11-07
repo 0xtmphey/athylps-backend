@@ -1,17 +1,32 @@
 name: Deploy
 on:
-  workflow_run:
-    workflows: [Test]
-    types:
-      - completed
+  push:
+    brances: [main]
+    tags: ["v*.*.*"]
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: "0xtmphey/athylps-backend"
 
 jobs:
+  check:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v5
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.25.0'
+      - name: Install dependencies
+        run: go mod download
+      - name: Build
+        run: go build -v ./...
+      - name: Run tests
+        run: go test ./...
   deploy:
     runs-on: ubuntu-latest
-    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    needs: [check]
+    if: ${{ needs.check.result == 'success' }}
     permissions:
       contents: read
       packages: write
@@ -31,3 +46,6 @@ jobs:
           platforms: linux/amd64
           push: true
           tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
+      - name: Send deploy hook
+        run: | 
+         curl --request GET '${{ secrets.COOLIFY_WEBHOOK }}' --header 'Authorization: Bearer ${{ secrets.COOLIFY_TOKEN }}'
