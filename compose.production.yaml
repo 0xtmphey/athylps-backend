@@ -1,0 +1,17 @@
+services:
+  api:
+    build:
+      context: .
+      dockerfile: ./build/Dockerfile
+    container_name: athylps-backend
+    restart: unless-stopped
+    depends_on:
+      - postgres
+    env_file:
+      - .env
+    environment:
+      - DB_HOST=athylps-postgres
+    ports:
+      - "${PORT}:${PORT}"
+    networks:
+      - athylps-network

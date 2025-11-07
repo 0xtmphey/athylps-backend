@@ -1,4 +1,4 @@
-name: Go
+name: Build and Test
 on: [push]
 
 jobs:
@@ -15,7 +15,5 @@ jobs:
         run: go mod download
       - name: Build
         run: go build -v ./...
-      - name: Vet
-        run: go vet -v ./...
-      - name: Test with the Go CLI
+      - name: Run tests
         run: go test ./...

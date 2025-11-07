@@ -1,0 +1,32 @@
+name: Build Static Image
+on:
+  workflow_run:
+    workflows: ["Build and Test"]
+    types: [completed]
+    tags: ['v*']
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: "0xtmphey/athylps-backend"
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v3
+      - name: Login to ghcr.io
+        uses: docker/login-action@v2
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GH_TOKEN  }}
+      - name: Build image and push to registry
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          file: build/Dockerfile
+          platforms: linux/amd64
+          push: true
+          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
