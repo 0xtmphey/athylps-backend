@@ -8,8 +8,9 @@ import (
 )
 
 type Config struct {
-	Server   ServerConfig
-	Database DatabaseConfig
+	Server     ServerConfig
+	Database   DatabaseConfig
+	RevenueCat RevenueCatConfig
 }
 
 type ServerConfig struct {
@@ -23,6 +24,10 @@ type DatabaseConfig struct {
 	Host     string `env:"DB_HOST,required"`
 	User     string `env:"DB_USER,required"`
 	Password string `env:"DB_PASSWORD,required"`
+}
+
+type RevenueCatConfig struct {
+	BearerToken string `env:"RC_BEARER,required"`
 }
 
 func Load() (*Config, error) {
