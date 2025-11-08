@@ -9,6 +9,7 @@ setup: ## Install all required tools for development
 	@go mod download
 	@go install github.com/pressly/goose/v3/cmd/goose@latest
 	@go install mvdan.cc/gofumpt@latest
+	@go install github.com/oapi-codegen/oapi-codegen/v2/cmd/oapi-codegen@latest
 	@echo "Setup complete!"
 
 .PHONY: tools
@@ -16,6 +17,7 @@ tools: ## Verify all required tools are installed
 	@echo "Checking required tools..."
 	@command -v goose >/dev/null 2>&1 || { echo "goose not found. Run 'make setup'"; exit 1; }
 	@command -v gofumpt >/dev/null 2>&1 || { echo "gofumpt not found. Run 'make setup'"; exit 1; }
+	@command -v oapi-codegen >/dev/null 2>&1 || { echo "oapi-codegen not found. Run 'make setup'"; exit 1; }
 	@echo "All tools are installed!"
 
 .PHONY: tidy
@@ -80,6 +82,10 @@ migrations-status: ## Check database migration status
 migrations-create: ## Create a new migration file (usage: make migrations-create NAME=create_users_table)
 	@test -n "$(NAME)" || (echo "NAME is required. Usage: make migrations-create NAME=create_users_table"; exit 1)
 	@goose -dir ./migrations create $(NAME) sql
+
+.PHONY: generate-api-models
+generate-api-models: # (Re)Generate api request/response models based on api specification
+	@oapi-codegen --config=api/oapi-codegen.yaml api/openapi.yaml
 
 .PHONY: check
 check: lint test ## Run all checks (lint + test)
