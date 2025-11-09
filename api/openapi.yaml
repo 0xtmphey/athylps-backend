@@ -37,6 +37,9 @@ paths:
         billing issues, and initial purchases.
 
         **Security**: Requires Bearer token authentication to verify the request originates from RevenueCat.
+
+        It will try to always respond success even in case of errors, so RC won't spam us with retries.
+        Occasional 500 is possible.
       operationId: handleRevenueCatWebhook
       security:
         - bearerAuth: []
@@ -47,37 +50,6 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/RevenueCatWebhookEvent'
-            examples:
-              initialPurchase:
-                summary: Initial Purchase Event
-                value:
-                  event:
-                    type: INITIAL_PURCHASE
-                    app_user_id: "user123"
-                    product_id: "premium_monthly"
-                    purchased_at_ms: 1699564800000
-                    store: "app_store"
-                    environment: "PRODUCTION"
-              renewal:
-                summary: Renewal Event
-                value:
-                  event:
-                    type: RENEWAL
-                    app_user_id: "user123"
-                    product_id: "premium_monthly"
-                    purchased_at_ms: 1699564800000
-                    store: "app_store"
-                    environment: "PRODUCTION"
-              cancellation:
-                summary: Cancellation Event
-                value:
-                  event:
-                    type: CANCELLATION
-                    app_user_id: "user123"
-                    product_id: "premium_monthly"
-                    cancelled_at_ms: 1699564800000
-                    store: "app_store"
-                    environment: "PRODUCTION"
       responses:
         '200':
           description: Webhook successfully processed
@@ -88,24 +60,6 @@ paths:
               example:
                 status: success
                 message: Webhook processed successfully
-        '401':
-          description: Unauthorized - Invalid or missing Bearer token
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-              example:
-                error: Unauthorized
-                message: Invalid or missing authorization token
-        '400':
-          description: Bad Request - Invalid webhook payload
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-              example:
-                error: Bad Request
-                message: Invalid webhook payload
         '500':
           description: Internal Server Error
           content:
@@ -138,28 +92,62 @@ components:
           type: object
           description: Event details
           required:
+            - id
+            - app_id
             - type
-            - app_user_id
+            - store
+            - environment
           properties:
+            id:
+              type: string
+              description: Unique identifier of the event
+              example: "CD489E0E-5D52-4E03-966B-A7F17788E432"
+            app_id: 
+              type: string
+              description: Unique identifier of the app the event is associated with. Corresponds to an app within a project
+              example: "app115cdb5ecb"
             type:
               type: string
               description: Type of RevenueCat event
+              example: "INITIAL_PURCHASE"
               enum:
+                - TEST
                 - INITIAL_PURCHASE
-                - RENEWAL
-                - CANCELLATION
-                - UNCANCELLATION
                 - NON_RENEWING_PURCHASE
-                - SUBSCRIPTION_PAUSED
-                - EXPIRATION
-                - BILLING_ISSUE
+                - RENEWAL
                 - PRODUCT_CHANGE
+                - CANCELLATION
+                - BILLING_ISSUE
+                - SUBSCRIBER_ALIAS
+                - SUBSCRIPTION_PAUSED
+                - UNCANCELLATION
                 - TRANSFER
-              example: INITIAL_PURCHASE
+                - SUBSCRIPTION_EXTENDED
+                - EXPIRATION
+                - TEMPORARY_ENTITLEMENT_GRANT
+                - INVOICE_ISSUANCE
+                - VIRTUAL_CURRENCY_TRANSACTION
+                - EXPERIMENT_ENROLLMENT
+            store:
+              type: string
+              description: Store where the purchase was made
+              enum:
+                - APP_STORE
+                - PLAY_STORE
+                - STRIPE
+                - PROMOTIONAL
+              example: "APP_STORE"
+            environment:
+              type: string
+              description: Environment where the event occurred
+              enum:
+                - PRODUCTION
+                - SANDBOX
+              example: "PRODUCTION"
             app_user_id:
               type: string
               description: Unique identifier for the user in your app
-              example: "user123"
+              example: "$RCAnonymousID:992ed7dce7d442838082445dfb1bacbe"
             product_id:
               type: string
               description: Product/SKU identifier
@@ -174,40 +162,46 @@ components:
               format: int64
               description: Cancellation timestamp in milliseconds (for CANCELLATION events)
               example: 1699564800000
+            country_code: 
+              type: string
+              description: Country code where the product was purchased
+              x-nullable: true
             expiration_at_ms:
               type: integer
               format: int64
               description: Expiration timestamp in milliseconds
               example: 1702156800000
-            store:
-              type: string
-              description: Store where the purchase was made
-              enum:
-                - app_store
-                - play_store
-                - stripe
-                - promotional
-              example: "app_store"
-            environment:
-              type: string
-              description: Environment where the event occurred
-              enum:
-                - PRODUCTION
-                - SANDBOX
-              example: "PRODUCTION"
+            price:
+              type: number
+              format: float
+              description: Price in dollars
+              example: 4.45
+              x-nullable: true
             price_in_purchased_currency:
               type: number
               format: float
               description: Price in the currency used for purchase
               example: 9.99
+              x-nullable: true
             currency:
               type: string
               description: ISO 4217 currency code
               example: "USD"
-            is_trial_period:
-              type: boolean
-              description: Whether this is a trial period
-              example: false
+            period_type:
+              type: string
+              description: Period type of the transaction
+              example: "TRIAL"
+              enum:
+                - TRIAL
+                - INTRO
+                - NORMAL
+                - PROMOTIONAL
+                - PREPAID
+            renewal_number:
+              type: integer
+              description: The number of renewals that this subscription has already gone through. Always starts at 1
+              example: "2"
+              x-nullable: true
 
     WebhookResponse:
       type: object

@@ -8,13 +8,22 @@ import (
 
 	"athylps/internal/api"
 	"athylps/internal/config"
+	"athylps/internal/usecases"
 
 	"go.uber.org/zap"
 )
 
 var ErrUnauthorized = errors.New("Unauthorized")
 
-func HandleRevenueCatWebHook(cfg *config.RevenueCatConfig, logger *zap.Logger) http.HandlerFunc {
+type sendPurchaseNotificationUsecase interface {
+	Perform(params *usecases.SendPurchaseNotificationParams)
+}
+
+func HandleRevenueCatWebHook(
+	cfg *config.RevenueCatConfig,
+	logger *zap.Logger,
+	usecase sendPurchaseNotificationUsecase,
+) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		authHeader := r.Header.Get("Authorization")
 		err := validateToken(authHeader, cfg.BearerToken)
@@ -33,6 +42,15 @@ func HandleRevenueCatWebHook(cfg *config.RevenueCatConfig, logger *zap.Logger) h
 			_ = json.NewEncoder(w).Encode(resp)
 			return
 		}
+
+		usecase.Perform(&usecases.SendPurchaseNotificationParams{
+			EventType:     string(data.Event.Type),
+			CountryCode:   data.Event.CountryCode,
+			Price:         data.Event.Price,
+			ProductID:     data.Event.ProductId,
+			RenewalNumber: data.Event.RenewalNumber,
+			Store:         string(data.Event.Store),
+		})
 
 		logger.Info("[RC webhook]", zap.Any("data", data))
 		resp := api.WebhookResponse{Status: api.Success}

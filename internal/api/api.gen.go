@@ -13,26 +13,42 @@ const (
 	SANDBOX    RevenueCatWebhookEventEventEnvironment = "SANDBOX"
 )
 
+// Defines values for RevenueCatWebhookEventEventPeriodType.
+const (
+	RevenueCatWebhookEventEventPeriodTypeINTRO       RevenueCatWebhookEventEventPeriodType = "INTRO"
+	RevenueCatWebhookEventEventPeriodTypeNORMAL      RevenueCatWebhookEventEventPeriodType = "NORMAL"
+	RevenueCatWebhookEventEventPeriodTypePREPAID     RevenueCatWebhookEventEventPeriodType = "PREPAID"
+	RevenueCatWebhookEventEventPeriodTypePROMOTIONAL RevenueCatWebhookEventEventPeriodType = "PROMOTIONAL"
+	RevenueCatWebhookEventEventPeriodTypeTRIAL       RevenueCatWebhookEventEventPeriodType = "TRIAL"
+)
+
 // Defines values for RevenueCatWebhookEventEventStore.
 const (
-	AppStore    RevenueCatWebhookEventEventStore = "app_store"
-	PlayStore   RevenueCatWebhookEventEventStore = "play_store"
-	Promotional RevenueCatWebhookEventEventStore = "promotional"
-	Stripe      RevenueCatWebhookEventEventStore = "stripe"
+	RevenueCatWebhookEventEventStoreAPPSTORE    RevenueCatWebhookEventEventStore = "APP_STORE"
+	RevenueCatWebhookEventEventStorePLAYSTORE   RevenueCatWebhookEventEventStore = "PLAY_STORE"
+	RevenueCatWebhookEventEventStorePROMOTIONAL RevenueCatWebhookEventEventStore = "PROMOTIONAL"
+	RevenueCatWebhookEventEventStoreSTRIPE      RevenueCatWebhookEventEventStore = "STRIPE"
 )
 
 // Defines values for RevenueCatWebhookEventEventType.
 const (
-	BILLINGISSUE        RevenueCatWebhookEventEventType = "BILLING_ISSUE"
-	CANCELLATION        RevenueCatWebhookEventEventType = "CANCELLATION"
-	EXPIRATION          RevenueCatWebhookEventEventType = "EXPIRATION"
-	INITIALPURCHASE     RevenueCatWebhookEventEventType = "INITIAL_PURCHASE"
-	NONRENEWINGPURCHASE RevenueCatWebhookEventEventType = "NON_RENEWING_PURCHASE"
-	PRODUCTCHANGE       RevenueCatWebhookEventEventType = "PRODUCT_CHANGE"
-	RENEWAL             RevenueCatWebhookEventEventType = "RENEWAL"
-	SUBSCRIPTIONPAUSED  RevenueCatWebhookEventEventType = "SUBSCRIPTION_PAUSED"
-	TRANSFER            RevenueCatWebhookEventEventType = "TRANSFER"
-	UNCANCELLATION      RevenueCatWebhookEventEventType = "UNCANCELLATION"
+	BILLINGISSUE               RevenueCatWebhookEventEventType = "BILLING_ISSUE"
+	CANCELLATION               RevenueCatWebhookEventEventType = "CANCELLATION"
+	EXPERIMENTENROLLMENT       RevenueCatWebhookEventEventType = "EXPERIMENT_ENROLLMENT"
+	EXPIRATION                 RevenueCatWebhookEventEventType = "EXPIRATION"
+	INITIALPURCHASE            RevenueCatWebhookEventEventType = "INITIAL_PURCHASE"
+	INVOICEISSUANCE            RevenueCatWebhookEventEventType = "INVOICE_ISSUANCE"
+	NONRENEWINGPURCHASE        RevenueCatWebhookEventEventType = "NON_RENEWING_PURCHASE"
+	PRODUCTCHANGE              RevenueCatWebhookEventEventType = "PRODUCT_CHANGE"
+	RENEWAL                    RevenueCatWebhookEventEventType = "RENEWAL"
+	SUBSCRIBERALIAS            RevenueCatWebhookEventEventType = "SUBSCRIBER_ALIAS"
+	SUBSCRIPTIONEXTENDED       RevenueCatWebhookEventEventType = "SUBSCRIPTION_EXTENDED"
+	SUBSCRIPTIONPAUSED         RevenueCatWebhookEventEventType = "SUBSCRIPTION_PAUSED"
+	TEMPORARYENTITLEMENTGRANT  RevenueCatWebhookEventEventType = "TEMPORARY_ENTITLEMENT_GRANT"
+	TEST                       RevenueCatWebhookEventEventType = "TEST"
+	TRANSFER                   RevenueCatWebhookEventEventType = "TRANSFER"
+	UNCANCELLATION             RevenueCatWebhookEventEventType = "UNCANCELLATION"
+	VIRTUALCURRENCYTRANSACTION RevenueCatWebhookEventEventType = "VIRTUAL_CURRENCY_TRANSACTION"
 )
 
 // Defines values for WebhookResponseStatus.
@@ -56,23 +72,35 @@ type ErrorResponse struct {
 type RevenueCatWebhookEvent struct {
 	// Event Event details
 	Event struct {
+		// AppId Unique identifier of the app the event is associated with. Corresponds to an app within a project
+		AppId string `json:"app_id"`
+
 		// AppUserId Unique identifier for the user in your app
-		AppUserId string `json:"app_user_id"`
+		AppUserId *string `json:"app_user_id,omitempty"`
 
 		// CancelledAtMs Cancellation timestamp in milliseconds (for CANCELLATION events)
 		CancelledAtMs *int64 `json:"cancelled_at_ms,omitempty"`
+
+		// CountryCode Country code where the product was purchased
+		CountryCode *string `json:"country_code,omitempty"`
 
 		// Currency ISO 4217 currency code
 		Currency *string `json:"currency,omitempty"`
 
 		// Environment Environment where the event occurred
-		Environment *RevenueCatWebhookEventEventEnvironment `json:"environment,omitempty"`
+		Environment RevenueCatWebhookEventEventEnvironment `json:"environment"`
 
 		// ExpirationAtMs Expiration timestamp in milliseconds
 		ExpirationAtMs *int64 `json:"expiration_at_ms,omitempty"`
 
-		// IsTrialPeriod Whether this is a trial period
-		IsTrialPeriod *bool `json:"is_trial_period,omitempty"`
+		// Id Unique identifier of the event
+		Id string `json:"id"`
+
+		// PeriodType Period type of the transaction
+		PeriodType *RevenueCatWebhookEventEventPeriodType `json:"period_type,omitempty"`
+
+		// Price Price in dollars
+		Price *float32 `json:"price,omitempty"`
 
 		// PriceInPurchasedCurrency Price in the currency used for purchase
 		PriceInPurchasedCurrency *float32 `json:"price_in_purchased_currency,omitempty"`
@@ -83,8 +111,11 @@ type RevenueCatWebhookEvent struct {
 		// PurchasedAtMs Purchase timestamp in milliseconds
 		PurchasedAtMs *int64 `json:"purchased_at_ms,omitempty"`
 
+		// RenewalNumber The number of renewals that this subscription has already gone through. Always starts at 1
+		RenewalNumber *int `json:"renewal_number,omitempty"`
+
 		// Store Store where the purchase was made
-		Store *RevenueCatWebhookEventEventStore `json:"store,omitempty"`
+		Store RevenueCatWebhookEventEventStore `json:"store"`
 
 		// Type Type of RevenueCat event
 		Type RevenueCatWebhookEventEventType `json:"type"`
@@ -93,6 +124,9 @@ type RevenueCatWebhookEvent struct {
 
 // RevenueCatWebhookEventEventEnvironment Environment where the event occurred
 type RevenueCatWebhookEventEventEnvironment string
+
+// RevenueCatWebhookEventEventPeriodType Period type of the transaction
+type RevenueCatWebhookEventEventPeriodType string
 
 // RevenueCatWebhookEventEventStore Store where the purchase was made
 type RevenueCatWebhookEventEventStore string

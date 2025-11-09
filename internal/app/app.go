@@ -7,6 +7,7 @@ import (
 
 	"athylps/internal/config"
 	"athylps/internal/handlers/hooks"
+	"athylps/internal/usecases"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
@@ -27,7 +28,9 @@ func Run(
 		w.Write([]byte("ok"))
 	})
 
-	r.Post("/hooks/revenuecat", hooks.HandleRevenueCatWebHook(&cfg.RevenueCat, logger))
+	purchaseNotificationUsecase := usecases.NewSendPurchaseNotificationUsecase(logger)
+
+	r.Post("/hooks/revenuecat", hooks.HandleRevenueCatWebHook(&cfg.RevenueCat, logger, purchaseNotificationUsecase))
 
 	addr := fmt.Sprintf(":%s", cfg.Server.Port)
 	log.Printf("Starting server on %s (environment: %s)", addr, cfg.Server.Env)
