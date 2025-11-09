@@ -7,6 +7,7 @@ require github.com/go-chi/chi/v5 v5.2.3
 require github.com/caarlos0/env/v11 v11.3.1
 
 require (
+	github.com/go-telegram/bot v1.17.0
 	github.com/jackc/pgx/v5 v5.7.6
 	github.com/joho/godotenv v1.5.1
 	go.uber.org/zap v1.27.0

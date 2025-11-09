@@ -1,6 +1,7 @@
 package usecases
 
 import (
+	"context"
 	"fmt"
 	"slices"
 	"strings"
@@ -22,6 +23,14 @@ var supportedEventTypes = []string{
 	typeCancellation,
 }
 
+var mapStoreNames = map[string]string{
+	"APP_STORE":   "App Store",
+	"PLAY_STORE":  "Google Play",
+	"STRIPE":      "Stripe",
+	"PROMOTIONAL": "RC Manual",
+	"RU_STORE":    "RuStore",
+}
+
 type SendPurchaseNotificationParams struct {
 	EventType     string
 	Store         string
@@ -31,15 +40,23 @@ type SendPurchaseNotificationParams struct {
 	RenewalNumber *int
 }
 
+type tgNotifier interface {
+	Notify(ctx context.Context, message string) error
+}
+
 type SendPurchaseNotificationUsecase struct {
-	logger *zap.Logger
+	notifier tgNotifier
+	logger   *zap.Logger
 }
 
-func NewSendPurchaseNotificationUsecase(logger *zap.Logger) *SendPurchaseNotificationUsecase {
-	return &SendPurchaseNotificationUsecase{logger: logger}
+func NewSendPurchaseNotificationUsecase(notifier tgNotifier, logger *zap.Logger) *SendPurchaseNotificationUsecase {
+	return &SendPurchaseNotificationUsecase{
+		notifier: notifier,
+		logger:   logger,
+	}
 }
 
-func (u *SendPurchaseNotificationUsecase) Perform(params *SendPurchaseNotificationParams) {
+func (u *SendPurchaseNotificationUsecase) Perform(ctx context.Context, params *SendPurchaseNotificationParams) {
 	u.logger.Info("Sending purchase notification")
 
 	if !slices.Contains(supportedEventTypes, params.EventType) {
@@ -47,27 +64,34 @@ func (u *SendPurchaseNotificationUsecase) Perform(params *SendPurchaseNotificati
 		return
 	}
 
-	u.logger.Info(buildNotificationMessage(params))
+	msg := buildNotificationMessage(params)
+	err := u.notifier.Notify(ctx, msg)
+	if err != nil {
+		u.logger.Error("failed to perform notify", zap.Error(err))
+	}
 }
 
 func buildNotificationMessage(p *SendPurchaseNotificationParams) string {
 	var sb strings.Builder
 
+	storeName, ok := mapStoreNames[p.Store]
+	if !ok {
+		storeName = p.Store
+	}
+
 	switch p.EventType {
 	case typeInitialPurchase:
-		sb.WriteString("💵 Совершена покупка 💵\n\n")
+		sb.WriteString(fmt.Sprintf("💵 Совершена покупка в <b>%s</b> 💵\n\n", storeName))
 	case typeNonRenewingPurchase:
-		sb.WriteString("💵 Совершена покупка (без продления) 💵\n\n")
+		sb.WriteString(fmt.Sprintf("💵 Совершена разовая покупка в <b>%s</b> 💵\n\n", storeName))
 	case typeRenewal:
-		sb.WriteString("🔁 Подписка продлена 🔁\n\n")
+		sb.WriteString(fmt.Sprintf("🔁 Подписка продлена в <b>%s</b> 🔁\n\n", storeName))
 	case typeCancellation:
-		sb.WriteString("✖︎ Совершена отмена подписки ✖︎\n\n")
+		sb.WriteString(fmt.Sprintf("✖︎ Совершена отмена подписки в <b>%s</b> ✖︎\n\n", storeName))
 	default:
 		sb.WriteString(fmt.Sprintf("Произошло событие: %s", p.EventType))
 		return sb.String()
 	}
-
-	sb.WriteString(fmt.Sprintf("Магазин: %s\n", p.Store))
 
 	if p.Price != nil && p.EventType != typeCancellation {
 		sb.WriteString(fmt.Sprintf("Стоимость: $%.2f\n", *p.Price))

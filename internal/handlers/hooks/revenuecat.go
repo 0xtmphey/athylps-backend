@@ -1,6 +1,7 @@
 package hooks
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
 	"net/http"
@@ -16,7 +17,7 @@ import (
 var ErrUnauthorized = errors.New("Unauthorized")
 
 type sendPurchaseNotificationUsecase interface {
-	Perform(params *usecases.SendPurchaseNotificationParams)
+	Perform(ctx context.Context, params *usecases.SendPurchaseNotificationParams)
 }
 
 func HandleRevenueCatWebHook(
@@ -43,7 +44,7 @@ func HandleRevenueCatWebHook(
 			return
 		}
 
-		usecase.Perform(&usecases.SendPurchaseNotificationParams{
+		usecase.Perform(r.Context(), &usecases.SendPurchaseNotificationParams{
 			EventType:     string(data.Event.Type),
 			CountryCode:   data.Event.CountryCode,
 			Price:         data.Event.Price,

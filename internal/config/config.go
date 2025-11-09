@@ -11,6 +11,7 @@ type Config struct {
 	Server     ServerConfig
 	Database   DatabaseConfig
 	RevenueCat RevenueCatConfig
+	Telegram   TelegramConfig
 }
 
 type ServerConfig struct {

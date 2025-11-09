@@ -7,6 +7,7 @@ import (
 
 	"athylps/internal/config"
 	"athylps/internal/handlers/hooks"
+	"athylps/internal/services"
 	"athylps/internal/usecases"
 
 	"github.com/go-chi/chi/v5"
@@ -28,7 +29,8 @@ func Run(
 		w.Write([]byte("ok"))
 	})
 
-	purchaseNotificationUsecase := usecases.NewSendPurchaseNotificationUsecase(logger)
+	tgNotifierService := services.NewTgNotifierService(&cfg.Telegram, logger)
+	purchaseNotificationUsecase := usecases.NewSendPurchaseNotificationUsecase(tgNotifierService, logger)
 
 	r.Post("/hooks/revenuecat", hooks.HandleRevenueCatWebHook(&cfg.RevenueCat, logger, purchaseNotificationUsecase))
 
