@@ -30,6 +30,11 @@ type RevenueCatConfig struct {
 	BearerToken string `env:"RC_BEARER,required"`
 }
 
+type TelegramConfig struct {
+	BotToken     string `env:"BOT_TOKEN,required"`
+	NotifyChatID string `env:"NOTIFY_CHAT_ID,required"`
+}
+
 func Load() (*Config, error) {
 	_ = godotenv.Load() // Ignore .env file loading error in case we have our envs set
 	cfg := &Config{}
