@@ -33,6 +33,7 @@ func Run(
 	purchaseNotificationUsecase := usecases.NewSendPurchaseNotificationUsecase(tgNotifierService, logger)
 
 	r.Post("/hooks/revenuecat", hooks.HandleRevenueCatWebHook(&cfg.RevenueCat, logger, purchaseNotificationUsecase))
+	r.Get("/hooks/donationalerts", hooks.HandleDonationAlertsWebhook())
 
 	addr := fmt.Sprintf(":%s", cfg.Server.Port)
 	log.Printf("Starting server on %s (environment: %s)", addr, cfg.Server.Env)

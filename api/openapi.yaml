@@ -26,6 +26,15 @@ tags:
     description: Webhook endpoints for third-party integrations
 
 paths:
+  /hooks/donationalerts:
+    tags:
+      - webhooks
+    summary: DonationAlerts webhook handler
+    description: Receives webhook from donation alerts, stub for now
+    openrationId: handleDonationAlertsWebhook
+    responses:
+      '200':
+        description: Webhook successfully processed
   /hooks/revenuecat:
     post:
       tags:
