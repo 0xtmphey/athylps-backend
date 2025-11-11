@@ -1,6 +1,7 @@
 package app
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"net/http"
@@ -10,6 +11,7 @@ import (
 	"athylps/internal/services"
 	"athylps/internal/usecases"
 
+	firebase "firebase.google.com/go/v4"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -21,6 +23,13 @@ func Run(
 	logger *zap.Logger,
 	dbpool *pgxpool.Pool,
 ) {
+	app, err := firebase.NewApp(context.Background(), nil)
+	if err != nil {
+		logger.Fatal("failed to initialize firebase app")
+	}
+
+	logger.Info("Initialized Firebase", zap.Any("app", app))
+
 	r := chi.NewRouter()
 	r.Use(middleware.Logger)
 	r.Use(middleware.Recoverer)
