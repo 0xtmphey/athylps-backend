@@ -31,6 +31,10 @@ COPY --from=build-stage /app/migrate .
 # Copy migrations if they exist (optional - remove this line if migrations don't exist yet)
 COPY --from=build-stage /build/migrations/ ./migrations/
 
+# Copy the entrypoint script
+COPY scripts/start.sh .
+RUN chmod +x start.sh
+
 # Expose port (adjust if needed)
 EXPOSE 8080
 
@@ -38,4 +42,4 @@ EXPOSE 8080
 RUN adduser -D -u 1000 appuser && chown -R appuser:appuser /app
 USER appuser
 
-CMD ["./migrate up && ./athylps"]
+CMD ["sh", "start.sh"]
