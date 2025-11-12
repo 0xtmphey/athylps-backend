@@ -38,7 +38,4 @@ EXPOSE 8080
 RUN adduser -D -u 1000 appuser && chown -R appuser:appuser /app
 USER appuser
 
-# Run migrations
-RUN "./migrate" "up"
-
-CMD ["./athylps"]
+CMD ["./migrate up && ./athylps"]
