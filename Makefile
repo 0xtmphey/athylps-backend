@@ -68,20 +68,20 @@ clean: ## Clean build artifacts and coverage reports
 
 .PHONY: migrations-up
 migrations-up: ## Run database migrations up
-	@goose -dir ./migrations postgres "$${DATABASE_URL}" up
+	@go run cmd/migrate/main.go up
 
 .PHONY: migrations-down
 migrations-down: ## Rollback last database migration
-	@goose -dir ./migrations postgres "$${DATABASE_URL}" down
+	@go run cmd/migrate/main.go down
 
 .PHONY: migrations-status
 migrations-status: ## Check database migration status
-	@goose -dir ./migrations postgres "$${DATABASE_URL}" status
+	@go run cmd/migrate/main.go status
 
-.PHONY: migrations-create
-migrations-create: ## Create a new migration file (usage: make migrations-create NAME=create_users_table)
-	@test -n "$(NAME)" || (echo "NAME is required. Usage: make migrations-create NAME=create_users_table"; exit 1)
-	@goose -dir ./migrations create $(NAME) sql
+.PHONY: migration
+migration: ## Create a new migration file (usage: make migration name=create_users_table)
+	@test -n "$(name)" || (echo "name is required. Usage: make migration name=create_users_table"; exit 1)
+	@goose -dir ./migrations create $(name) sql
 
 .PHONY: generate-api-models
 generate-api-models: # (Re)Generate api request/response models based on api specification
