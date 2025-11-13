@@ -9,6 +9,7 @@ require github.com/caarlos0/env/v11 v11.3.1
 require (
 	firebase.google.com/go/v4 v4.18.0
 	github.com/Masterminds/squirrel v1.5.4
+	github.com/biter777/countries v1.7.5
 	github.com/go-telegram/bot v1.17.0
 	github.com/jackc/pgx/v5 v5.7.6
 	github.com/joho/godotenv v1.5.1

@@ -6,6 +6,7 @@ import (
 	"slices"
 	"strings"
 
+	"github.com/biter777/countries"
 	"go.uber.org/zap"
 )
 
@@ -98,7 +99,7 @@ func buildNotificationMessage(p *SendPurchaseNotificationParams) string {
 	}
 
 	if p.CountryCode != nil {
-		sb.WriteString(fmt.Sprintf("Страна: %s\n", *p.CountryCode))
+		sb.WriteString(fmt.Sprintf("Страна: %s\n", countryName(*p.CountryCode)))
 	}
 
 	if p.ProductID != nil {
@@ -110,4 +111,12 @@ func buildNotificationMessage(p *SendPurchaseNotificationParams) string {
 	}
 
 	return sb.String()
+}
+
+func countryName(countryCode string) string {
+	country := countries.ByName(countryCode)
+	name := country.StringRus()
+	flag := country.Emoji()
+
+	return fmt.Sprintf("%s %s", flag, name)
 }
