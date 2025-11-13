@@ -26,15 +26,33 @@ tags:
     description: Webhook endpoints for third-party integrations
 
 paths:
+  /hooks/rustore:
+    post:
+      tags:
+        - webhooks
+      summary: RuStore webhook handler
+      description: Receives webhook from RuStore that notifies about payment transactions
+      operationId: handleRustoreWebhook
+      requestBody:
+        required: true
+        description: Secured payload of the webhook event
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RuStoreWebhookEvent"
+      responses:
+        "200":
+          description: Webhook successfully processed
   /hooks/donationalerts:
-    tags:
-      - webhooks
-    summary: DonationAlerts webhook handler
-    description: Receives webhook from donation alerts, stub for now
-    openrationId: handleDonationAlertsWebhook
-    responses:
-      '200':
-        description: Webhook successfully processed
+    post:
+      tags:
+        - webhooks
+      summary: DonationAlerts webhook handler
+      description: Receives webhook from donation alerts, stub for now
+      operationId: handleDonationAlertsWebhook
+      responses:
+        "200":
+          description: Webhook successfully processed
   /hooks/revenuecat:
     post:
       tags:
@@ -58,23 +76,23 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/RevenueCatWebhookEvent'
+              $ref: "#/components/schemas/RevenueCatWebhookEvent"
       responses:
-        '200':
+        "200":
           description: Webhook successfully processed
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/WebhookResponse'
+                $ref: "#/components/schemas/WebhookResponse"
               example:
                 status: success
                 message: Webhook processed successfully
-        '500':
+        "500":
           description: Internal Server Error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: "#/components/schemas/ErrorResponse"
               example:
                 error: Internal Server Error
                 message: An unexpected error occurred
@@ -111,7 +129,7 @@ components:
               type: string
               description: Unique identifier of the event
               example: "CD489E0E-5D52-4E03-966B-A7F17788E432"
-            app_id: 
+            app_id:
               type: string
               description: Unique identifier of the app the event is associated with. Corresponds to an app within a project
               example: "app115cdb5ecb"
@@ -171,7 +189,7 @@ components:
               format: int64
               description: Cancellation timestamp in milliseconds (for CANCELLATION events)
               example: 1699564800000
-            country_code: 
+            country_code:
               type: string
               description: Country code where the product was purchased
               x-nullable: true
@@ -211,6 +229,16 @@ components:
               description: The number of renewals that this subscription has already gone through. Always starts at 1
               example: "2"
               x-nullable: true
+
+    RuStoreWebhookEvent:
+      type: object
+      description: RuStore purchase notification event
+      required:
+        - payload
+      properties:
+        payload:
+          type: string
+          description: Encrypt payload of the event
 
     WebhookResponse:
       type: object

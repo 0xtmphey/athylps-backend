@@ -134,6 +134,12 @@ type RevenueCatWebhookEventEventStore string
 // RevenueCatWebhookEventEventType Type of RevenueCat event
 type RevenueCatWebhookEventEventType string
 
+// RuStoreWebhookEvent RuStore purchase notification event
+type RuStoreWebhookEvent struct {
+	// Payload Encrypt payload of the event
+	Payload string `json:"payload"`
+}
+
 // WebhookResponse Successful webhook response
 type WebhookResponse struct {
 	// Message Human-readable message
@@ -148,3 +154,6 @@ type WebhookResponseStatus string
 
 // HandleRevenueCatWebhookJSONRequestBody defines body for HandleRevenueCatWebhook for application/json ContentType.
 type HandleRevenueCatWebhookJSONRequestBody = RevenueCatWebhookEvent
+
+// HandleRustoreWebhookJSONRequestBody defines body for HandleRustoreWebhook for application/json ContentType.
+type HandleRustoreWebhookJSONRequestBody = RuStoreWebhookEvent

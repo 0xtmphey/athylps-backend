@@ -12,6 +12,7 @@ type Config struct {
 	Database   DatabaseConfig
 	RevenueCat RevenueCatConfig
 	Telegram   TelegramConfig
+	Rustore    RustoreConfig
 }
 
 type ServerConfig struct {
@@ -34,6 +35,10 @@ type RevenueCatConfig struct {
 type TelegramConfig struct {
 	BotToken     string `env:"BOT_TOKEN,required"`
 	NotifyChatID string `env:"NOTIFY_CHAT_ID,required"`
+}
+
+type RustoreConfig struct {
+	NotifySecret string `env:"RUSTORE_NOTIFY_SECRET,required"`
 }
 
 func Load() (*Config, error) {
